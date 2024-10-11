@@ -24,7 +24,7 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 	if (!reader.ParseFromFile(model_path.string(), reader_config)) {
 		if (!reader.Error().empty())
 		{
-			THROW_ERROR(reader.Error());
+ 				THROW_ERROR(reader.Error());
 		
 		}
 	}
