@@ -111,7 +111,7 @@ namespace cg::renderer
 	inline void rasterizer<VB, RT>::draw(size_t num_vertexes, size_t vertex_offset)
 	{
 		size_t vertex_id = vertex_offset;
-		while (vertex_id < vertex_offset * num_vertexes)
+		while (vertex_id < vertex_offset + num_vertexes)
 		{
 			std::vector<VB> vertices(3);
 			vertices[0] = vertex_buffer->item(index_buffer->item(vertex_id++));
