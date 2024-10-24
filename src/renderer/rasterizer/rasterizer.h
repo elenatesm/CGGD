@@ -147,36 +147,38 @@ namespace cg::renderer
 			int2 max_vertex = max(vertex_a, max(vertex_b, vertex_c));
 			int2 bb_end = clamp(max_vertex, min_border, max_border);
 
-			for (int x = bb_begin.x; x <= bb_end.x; x++)
+			for (float x = bounding_box_begin.x; x<=bounding_box_end.x;
+				 x+=1.f)
 			{
-				for (int y = bb_begin.y; y <=bb_end.y; y++)
+				for (float y = bounding_box_begin.y; y <=bounding_box_end.y;
+					 y+=1.f)
 				{
-					int2 point{x, y};
+					float2 point{x, y};
 					float edge0 = edge_function(vertex_a, vertex_b, point);
 					float edge1 = edge_function(vertex_b, vertex_c, point);
 					float edge2 = edge_function(vertex_c, vertex_a, point);
 
 					if (edge0 >= 0.f && edge1 >= 0.f && edge2 >= 0.f)
 					{
-						float u = edge1 / edge;
-						float v = edge2 / edge;
-						float w = edge0 / edge;
-						float depth = u * vertices[0].z + v * vertices[1].z + w * vertices[2].z;
-						size_t static_cast_x = static_cast<size_t>(x);
-						size_t static_cast_y = static_cast<size_t>(y);
-						if (depth_test(depth, static_cast_x, static_cast_y))
+						float u = edge1/edge;
+						float v = edge2/edge;
+						float w = edge0/edge;
+						float depth = u * vertices[0].z +
+									  v * vertices[1].z +
+									  w * vertices[2].z;
+
+						size_t u_x = static_cast<size_t>(x);
+						size_t u_y = static_cast<size_t>(y);
+
+						if (depth_test(depth, u_x, u_y))
 						{
-							auto pixel = pixel_shader(vertices[0], 0.f);
-							render_target->item(static_cast<size_t>(x), static_cast<size_t>(y)) = RT::from_color(pixel);
-							
+							auto pixel_result = pixel_shader(vertices[0], depth);
+							render_target->item(u_x, u_y) = RT::from_color(pixel_result);
 							if (depth_buffer)
-							{
-								depth_buffer->item(static_cast<size_t>(x), static_cast<size_t>(y)) = depth;
-							}
+								depth_buffer->item(u_x, u_y) = depth;
 						}
+
 					}
-
-
 				}
 			}
 		}
