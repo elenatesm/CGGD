@@ -199,9 +199,9 @@ namespace cg::renderer
 			while (index_id < index_buffer->count())
 			{
 				triangle<VB> triangle(
-					vertex_buffer->item(index_buffer->item(index++)),
-					vertex_buffer->item(index_buffer->item(index++)),
-					vertex_buffer->item(index_buffer->item(index++)));
+					vertex_buffer->item(index_buffer->item(index_id++)),
+					vertex_buffer->item(index_buffer->item(index_id++)),
+					vertex_buffer->item(index_buffer->item(index_id++)));
 				aabb.add_triangle(triangle);
 			}
 			acceleration_structures.push_back(aabb);
