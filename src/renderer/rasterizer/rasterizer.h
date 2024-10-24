@@ -147,10 +147,10 @@ namespace cg::renderer
 			int2 max_vertex = max(vertex_a, max(vertex_b, vertex_c));
 			int2 bb_end = clamp(max_vertex, min_border, max_border);
 
-			for (float x = bounding_box_begin.x; x<=bounding_box_end.x;
+			for (float x = bb_begin.x; x<=bb_end.x;
 				 x+=1.f)
 			{
-				for (float y = bounding_box_begin.y; y <=bounding_box_end.y;
+				for (float y = bb_begin.y; y <=bb_end.y;
 					 y+=1.f)
 				{
 					float2 point{x, y};
