@@ -66,14 +66,12 @@ const float4x4 cg::world::camera::get_view_matrix() const
 
 	float3 z_axis = normalize(position - eye);
 	float3 x_axis = normalize(cross(up, z_axis));
-	float3 y_axis = cross(z_axis, x_axis);
+	float3 y_axis = normalize(cross(z_axis, x_axis));
 	return float4x4{
 			{x_axis.x, y_axis.x, z_axis.x, 0},
 			{x_axis.y, y_axis.y, z_axis.y, 0},
 			{x_axis.z, y_axis.z, z_axis.z, 0},
-			{-dot(x_axis, position),
-			 -dot(y_axis, position),
-			 -dot(z_axis, position), 1}
+			{-dot(x_axis, position), -dot(y_axis, position), -dot(z_axis, position), 1}
 	};
 }
 
@@ -83,13 +81,17 @@ const DirectX::XMMATRIX cg::world::camera::get_dxm_view_matrix() const
 	DirectX::FXMVECTOR eye_position{position.x, position.y, position.z};
 	DirectX::FXMVECTOR eye_direction{get_direction().x, get_direction().y, get_direction().z};
 	DirectX::FXMVECTOR up_direction{get_up().x, get_up().y, get_up().z};
-
 	return DirectX::XMMatrixLookToRH(eye_position, eye_direction, up_direction);
 }
 
 const DirectX::XMMATRIX cg::world::camera::get_dxm_projection_matrix() const
 {
-	return DirectX::XMMatrixPerspectiveFovRH(angle_of_view, aspect_ratio, z_near, z_far);
+	return  DirectX::XMMatrixPerspectiveFovRH(
+			angle_of_view,
+			aspect_ratio,
+			z_near,
+			z_far
+			);
 }
 
 const DirectX::XMMATRIX camera::get_dxm_mvp_matrix() const
@@ -100,12 +102,13 @@ const DirectX::XMMATRIX camera::get_dxm_mvp_matrix() const
 
 const float4x4 cg::world::camera::get_projection_matrix() const
 {
-	float f = 1.f / std::tanf(angle_of_view / 2.f);
+	float f = 1.f/tanf(angle_of_view / 2.f);
 	return float4x4{
 			{f / aspect_ratio, 0, 0, 0},
 			{0, f, 0, 0},
-			{0, 0, z_far / (z_near - z_far), -1},
-			{0, 0, (z_far * z_near) / (z_near - z_far), 0}}; 
+			{0, 0, z_far/(z_near - z_far), -1},
+			{0, 0, z_far * z_near / (z_near - z_far), 0}
+	};
 }
 
 const float3 cg::world::camera::get_position() const
@@ -116,9 +119,11 @@ const float3 cg::world::camera::get_position() const
 const float3 cg::world::camera::get_direction() const
 {
 	return float3{
-			std::sin(theta) * std::cos(phi),
+			std::sin(theta)*std::cos(phi),
 			std::sin(phi),
-			-std::cos(theta) * std::cos(phi)};
+			-std::cos(theta)*std::cos(phi)
+
+	};
 }
 
 const float3 cg::world::camera::get_right() const
@@ -130,7 +135,6 @@ const float3 cg::world::camera::get_up() const
 {
 	return cross(get_right(), get_direction());
 }
-
 const float camera::get_theta() const
 {
 	return theta;

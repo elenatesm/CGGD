@@ -21,11 +21,11 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 	reader_config.triangulate = true;
 
 	tinyobj::ObjReader reader;
-	if (!reader.ParseFromFile(model_path.string(), reader_config)) {
+	if (!reader.ParseFromFile(model_path.string(), reader_config))
+	{
 		if (!reader.Error().empty())
 		{
- 				THROW_ERROR(reader.Error());
-		
+			THROW_ERROR(reader.Error());
 		}
 	}
 	auto& shape = reader.GetShapes();
@@ -35,39 +35,39 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 	allocate_buffers(shape);
 	fill_buffers(shape, attrib, materials,
 				 model_path.parent_path());
-
 }
 
 void model::allocate_buffers(const std::vector<tinyobj::shape_t>& shapes)
 {
-	for (const auto& shape: shapes) {
-		size_t index_ofset = 0;
+	for (const auto& shape : shapes)
+	{
+		size_t index_offset = 0;
 		unsigned int vertex_buffer_size = 0;
 		unsigned int index_buffer_size = 0;
 		std::map<std::tuple<int, int, int>, unsigned int> index_map;
 		const auto& mesh = shape.mesh;
-
-		for (const auto& fv: mesh.num_face_vertices) {
-			for (size_t v = 0; v < fv; ++v) {
-				tinyobj::index_t idx = mesh.indices[index_ofset + v];
+		for (const auto& fv : mesh.num_face_vertices)
+		{
+			for (size_t v=0; v < fv; v++)
+			{
+				tinyobj::index_t idx = mesh.indices[index_offset + v];
 				auto idx_tuple = std::make_tuple(
 						idx.vertex_index,
 						idx.normal_index,
 						idx.texcoord_index);
-				if (index_map.count(idx_tuple) == 0) {
+				if (index_map.count(idx_tuple) == 0)
+				{
 					index_map[idx_tuple] = vertex_buffer_size;
 					vertex_buffer_size++;
 				}
 				index_buffer_size++;
 			}
-			index_ofset += fv;
+			index_offset += fv;
 		}
-		vertex_buffers.push_back(
-				std::make_shared<cg::resource<cg::vertex>>(
-						vertex_buffer_size));
-		index_buffers.push_back(
-				std::make_shared<cg::resource<unsigned int>>(
-						index_buffer_size));
+		vertex_buffers.push_back(std::make_shared<
+								 cg::resource<cg::vertex>>(vertex_buffer_size));
+		index_buffers.push_back(std::make_shared<
+								cg::resource<unsigned int>>(index_buffer_size));
 	}
 	textures.resize(shapes.size());
 }
@@ -75,38 +75,33 @@ void model::allocate_buffers(const std::vector<tinyobj::shape_t>& shapes)
 float3 cg::world::model::compute_normal(const tinyobj::attrib_t& attrib, const tinyobj::mesh_t& mesh, size_t index_offset)
 {
 	auto a_id = mesh.indices[index_offset];
-	auto b_id = mesh.indices[index_offset + 1];
-	auto c_id = mesh.indices[index_offset + 2];
+	auto b_id = mesh.indices[index_offset+1];
+	auto c_id = mesh.indices[index_offset+2];
 
 	float3 a{
-			attrib.vertices[3 * a_id.vertex_index],
-			attrib.vertices[3 * a_id.vertex_index + 1],
-			attrib.vertices[3 * a_id.vertex_index + 2]
-
+			attrib.vertices[3*a_id.vertex_index],
+			attrib.vertices[3*a_id.vertex_index + 1],
+			attrib.vertices[3*a_id.vertex_index + 2]
 	};
-
 	float3 b{
-			attrib.vertices[3 * b_id.vertex_index],
-			attrib.vertices[3 * b_id.vertex_index + 1],
-			attrib.vertices[3 * b_id.vertex_index + 2]
-
+			attrib.vertices[3*b_id.vertex_index],
+			attrib.vertices[3*b_id.vertex_index + 1],
+			attrib.vertices[3*b_id.vertex_index + 2]
 	};
-
 	float3 c{
-			attrib.vertices[3 * c_id.vertex_index],
-			attrib.vertices[3 * c_id.vertex_index + 1],
-			attrib.vertices[3 * c_id.vertex_index + 2]
-
+			attrib.vertices[3*c_id.vertex_index],
+			attrib.vertices[3*c_id.vertex_index + 1],
+			attrib.vertices[3*c_id.vertex_index + 2]
 	};
 
-	return normalize(cross(b - a, c - a));
+	return normalize(cross(b-a, c-a));
 }
 
 void model::fill_vertex_data(cg::vertex& vertex, const tinyobj::attrib_t& attrib, const tinyobj::index_t idx, const float3 computed_normal, const tinyobj::material_t material)
 {
-	vertex.x = attrib.vertices[3 * idx.vertex_index];
-	vertex.y = attrib.vertices[3 * idx.vertex_index + 1];
-	vertex.z = attrib.vertices[3 * idx.vertex_index + 2];
+	vertex.x = attrib.vertices[3*idx.vertex_index];
+	vertex.y = attrib.vertices[3*idx.vertex_index + 1];
+	vertex.z = attrib.vertices[3*idx.vertex_index + 2];
 
 	if (idx.normal_index < 0)
 	{
@@ -116,9 +111,9 @@ void model::fill_vertex_data(cg::vertex& vertex, const tinyobj::attrib_t& attrib
 	}
 	else
 	{
-		vertex.nx = attrib.normals[3 * idx.normal_index];
-		vertex.ny = attrib.normals[3 * idx.normal_index + 1];
-		vertex.nz = attrib.normals[3 * idx.normal_index + 2];
+		vertex.nx = attrib.normals[3*idx.normal_index];
+		vertex.ny = attrib.normals[3*idx.normal_index + 1];
+		vertex.nx = attrib.normals[3*idx.normal_index + 2];
 	}
 
 	if (idx.texcoord_index < 0)
@@ -128,8 +123,8 @@ void model::fill_vertex_data(cg::vertex& vertex, const tinyobj::attrib_t& attrib
 	}
 	else
 	{
-		vertex.u = attrib.texcoords[2 * idx.texcoord_index];
-		vertex.v = attrib.texcoords[2 * idx.texcoord_index + 1];
+		vertex.u = attrib.texcoords[2*idx.texcoord_index];
+		vertex.v = attrib.texcoords[2*idx.texcoord_index + 1];
 	}
 
 	vertex.ambient_r = material.ambient[0];
@@ -147,38 +142,38 @@ void model::fill_vertex_data(cg::vertex& vertex, const tinyobj::attrib_t& attrib
 
 void model::fill_buffers(const std::vector<tinyobj::shape_t>& shapes, const tinyobj::attrib_t& attrib, const std::vector<tinyobj::material_t>& materials, const std::filesystem::path& base_folder)
 {
-	for (size_t s = 0; s < shapes.size(); ++s) {
+	for (size_t s = 0; s < shapes.size(); s++)
+	{
 		size_t index_offset = 0;
 		unsigned int vertex_buffer_id = 0;
 		unsigned int index_buffer_id = 0;
-
 		auto vertex_buffer = vertex_buffers[s];
 		auto index_buffer = index_buffers[s];
 		std::map<std::tuple<int, int, int>, unsigned int> index_map;
 		const auto& mesh = shapes[s].mesh;
-
-		for (size_t f = 0; f < mesh.num_face_vertices.size(); ++f) {
+		for (size_t f = 0; f < mesh.num_face_vertices.size(); f++)
+		{
 			int fv = mesh.num_face_vertices[f];
 			float3 normal;
-			if (mesh.indices[index_offset].normal_index < 0) {
+			if (mesh.indices[index_offset].normal_index < 0)
+			{
 				normal = compute_normal(attrib, mesh, index_offset);
 			}
-
-			for (size_t v = 0; v < fv; v++) {
-				
-				auto& idx = mesh.indices[index_offset + v];
+			for (size_t v=0; v < fv; v++)
+			{
+				auto& idx = mesh.indices[index_offset+v];
 				auto idx_tuple = std::make_tuple(
 						idx.vertex_index,
 						idx.normal_index,
 						idx.texcoord_index);
-
-
-				if (index_map.count(idx_tuple) == 0) {
-					cg::vertex& vertex = vertex_buffer->item(vertex_buffer_id);
-					const auto& material = materials[mesh.material_ids[f]];
-
+				if (index_map.count(idx_tuple) == 0)
+				{
+					cg::vertex& vertex = vertex_buffer->item(
+							vertex_buffer_id
+					);
+					const auto& material = materials[
+							mesh.material_ids[f]];
 					fill_vertex_data(vertex, attrib, idx, normal, material);
-
 					index_map[idx_tuple] = vertex_buffer_id;
 					vertex_buffer_id++;
 				}
@@ -187,9 +182,10 @@ void model::fill_buffers(const std::vector<tinyobj::shape_t>& shapes, const tiny
 			}
 			index_offset += fv;
 		}
-		
-		if (!materials[mesh.material_ids[0]].diffuse_texname.empty()) {
-			textures[s] = base_folder / materials[mesh.material_ids[0]].diffuse_texname;
+		if (!materials[mesh.material_ids[0]].diffuse_texname.empty())
+		{
+			textures[s] = base_folder /
+						  materials[mesh.material_ids[0]].diffuse_texname;
 		}
 	}
 }

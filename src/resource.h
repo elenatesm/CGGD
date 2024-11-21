@@ -23,8 +23,7 @@ namespace cg
 		T& item(size_t item);
 		T& item(size_t x, size_t y);
 
-		size_t size_bytes() const;
-		size_t count() const;
+		size_t get_size_in_bytes() const;
 		size_t get_number_of_elements() const;
 		size_t get_stride() const;
 
@@ -37,14 +36,14 @@ namespace cg
 	template<typename T>
 	inline resource<T>::resource(size_t size)
 	{
-		data.resize(size);
 		stride = 0;
+		data.resize(size);
 	}
 	template<typename T>
 	inline resource<T>::resource(size_t x_size, size_t y_size)
 	{
-		data.resize(x_size * y_size);
 		stride = x_size;
+		data.resize(x_size * y_size);
 	}
 	template<typename T>
 	inline resource<T>::~resource()
@@ -58,28 +57,24 @@ namespace cg
 	template<typename T>
 	inline T& resource<T>::item(size_t item)
 	{
-		return data.at(item);
+		return(data.at(item));
 	}
 	template<typename T>
 	inline T& resource<T>::item(size_t x, size_t y)
 	{
-		return data.at(stride * y + x);
+		return(data.at(stride * y + x));
 	}
 	template<typename T>
-	inline size_t resource<T>::size_bytes() const
+	inline size_t resource<T>::get_size_in_bytes() const
 	{
 		return data.size() * item_size;
-	}
-	template<typename T>
-	inline size_t resource<T>::count() const
-	{
-		return data.size();
 	}
 	template<typename T>
 	inline size_t resource<T>::get_number_of_elements() const
 	{
 		return data.size();
 	}
+
 	template<typename T>
 	inline size_t resource<T>::get_stride() const
 	{
@@ -90,15 +85,12 @@ namespace cg
 	{
 		static color from_float3(const float3& in)
 		{
-			color out {};
-			out.r = in.x;
-			out.g = in.y;
-			out.b = in.z;
-			return out;
+			color color{in.x, in.y, in.z};
+			return color;
 		};
 		float3 to_float3() const
 		{
-			return float3(r, g, b);
+			return float3{r, g, b};
 		}
 		float r;
 		float g;
@@ -117,8 +109,8 @@ namespace cg
 		};
 		static unsigned_color from_float3(const float3& color)
 		{
-			float3 preprocessed = clamp(255.f * color, 0.f, 255.f);
 			unsigned_color out{};
+			float3 preprocessed = clamp(255.f * color, 0.f, 255.f);
 			out.r = static_cast<uint8_t>(preprocessed.x);
 			out.g = static_cast<uint8_t>(preprocessed.y);
 			out.b = static_cast<uint8_t>(preprocessed.z);
@@ -126,11 +118,11 @@ namespace cg
 		};
 		float3 to_float3() const
 		{
-			return float3(
-				static_cast<float>(r),
-				static_cast<float>(g),
-				static_cast<float>(b)
-			) / 255.f;
+			return float3{
+						   static_cast<float>(r),
+						   static_cast<float>(g),
+						   static_cast<float>(b)
+				   } / 255.f;
 		};
 		uint8_t r;
 		uint8_t g;
@@ -140,12 +132,24 @@ namespace cg
 
 	struct vertex
 	{
-		float x, y, z;
-		float nx, ny, nz;
-		float u, v;
-		float ambient_r, ambient_g, ambient_b;
-		float diffuse_r, diffuse_g, diffuse_b;
-		float emissive_r, emissive_g, emissive_b;
+		float x;
+		float y;
+		float z;
+		float nx;
+		float ny;
+		float nz;
+		float u;
+		float v;
+		float ambient_r;
+		float ambient_g;
+		float ambient_b;
+		float diffuse_r;
+		float diffuse_g;
+		float diffuse_b;
+		float emissive_r;
+		float emissive_g;
+		float emissive_b;
+
 	};
 
-}
+}// namespace cg
